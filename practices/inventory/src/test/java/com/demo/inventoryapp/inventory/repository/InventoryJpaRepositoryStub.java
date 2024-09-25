@@ -36,4 +36,25 @@ public class InventoryJpaRepositoryStub implements InventoryJpaRepository {
         inventoryEntity.setStock(inventoryEntity.getStock() - quantity);
         return 1;
     }
+
+
+    @Override
+    public @NotNull InventoryEntity save(@NotNull InventoryEntity inventoryEntity) {
+        final Long entityId = inventoryEntity.getId();
+        final Optional<InventoryEntity> optionalEntity = inventoryEntities.stream()
+                .filter(entity -> entity.getId() != null && entity.getId().equals(entityId))
+                .findFirst();
+
+        InventoryEntity entity;
+        if (optionalEntity.isPresent()) {
+            entity = optionalEntity.get();
+            entity.setStock(inventoryEntity.getStock());
+        } else {
+            final Long id = idGenerator.getAndIncrement();
+            entity = new InventoryEntity(id, inventoryEntity.getItemId(), inventoryEntity.getStock());
+            inventoryEntities.add(entity);
+        }
+        return entity;
+    }
+
 }

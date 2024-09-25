@@ -11,4 +11,7 @@ public interface InventoryJpaRepository {
 
     @NotNull
     Integer decreaseStock(@NotNull String itemId, @NotNull Long quantity);
+
+    @NotNull
+    InventoryEntity save(@NotNull InventoryEntity inventoryEntity);
 }

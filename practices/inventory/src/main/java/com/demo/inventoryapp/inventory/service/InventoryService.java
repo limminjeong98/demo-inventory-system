@@ -5,6 +5,7 @@ import com.demo.inventoryapp.inventory.repository.entity.InventoryEntity;
 import com.demo.inventoryapp.inventory.service.domain.Inventory;
 import com.demo.inventoryapp.inventory.service.exception.InsufficientStockException;
 import com.demo.inventoryapp.inventory.service.exception.InvalidDecreaseQuantityException;
+import com.demo.inventoryapp.inventory.service.exception.InvalidStockException;
 import com.demo.inventoryapp.inventory.service.exception.ItemNotFoundException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -40,6 +41,19 @@ public class InventoryService {
         final InventoryEntity updatedEntity = inventoryJpaRepository.findByItemId(itemId).orElseThrow(ItemNotFoundException::new);
         return mapToDomain(updatedEntity);
     }
+
+
+    public @NotNull Inventory updateStock(@NotNull final String itemId, @NotNull Long newStock) {
+        // 업데이트하려는 재고 수량은 0 이상
+        if (newStock < 0) throw new InvalidStockException();
+
+        // itemId에 해당하는 엔티티 없음
+        final InventoryEntity inventoryEntity = inventoryJpaRepository.findByItemId(itemId).orElseThrow(ItemNotFoundException::new);
+
+        inventoryEntity.setStock(newStock);
+        return mapToDomain(inventoryJpaRepository.save(inventoryEntity));
+    }
+
 
     private Inventory mapToDomain(InventoryEntity entity) {
         return new Inventory(entity.getItemId(), entity.getStock());
