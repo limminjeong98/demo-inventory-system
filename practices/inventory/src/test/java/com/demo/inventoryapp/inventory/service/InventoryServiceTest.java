@@ -64,8 +64,8 @@ class InventoryServiceTest {
 
             // then
             assertNotNull(result);
-            assertEquals(existingItemId, result.getItemId());
-            assertEquals(stock, result.getStock());
+            assertEquals(existingItemId, result.itemId());
+            assertEquals(stock, result.stock());
         }
     }
 
@@ -87,9 +87,7 @@ class InventoryServiceTest {
             final Long quantity = -1L;
 
             // when & then
-            assertThrows(InvalidDecreaseQuantityException.class, () -> {
-                sut.decreaseByItemId(existingItemId, quantity);
-            });
+            assertThrows(InvalidDecreaseQuantityException.class, () -> sut.decreaseByItemId(existingItemId, quantity));
         }
 
         @DisplayName("itemId를 갖는 entity를 찾지 못하면, Exception을 throw한다")
@@ -100,9 +98,7 @@ class InventoryServiceTest {
             final String nonExistingItemId = "2";
 
             // when & then
-            assertThrows(ItemNotFoundException.class, () -> {
-                sut.decreaseByItemId(nonExistingItemId, quantity);
-            });
+            assertThrows(ItemNotFoundException.class, () -> sut.decreaseByItemId(nonExistingItemId, quantity));
         }
 
         @DisplayName("quantity가 stock보다 크면, Exception을 throw한다")
@@ -112,9 +108,7 @@ class InventoryServiceTest {
             final Long quantity = stock + 1L;
 
             // when & then
-            assertThrows(InsufficientStockException.class, () -> {
-                sut.decreaseByItemId(existingItemId, quantity);
-            });
+            assertThrows(InsufficientStockException.class, () -> sut.decreaseByItemId(existingItemId, quantity));
         }
 
         @DisplayName("변경된 entity가 없다면 Exception을 throw한다")
@@ -127,9 +121,7 @@ class InventoryServiceTest {
                     .decreaseStock(existingItemId, quantity);
 
             // when
-            assertThrows(ItemNotFoundException.class, () -> {
-                sut.decreaseByItemId(existingItemId, quantity);
-            });
+            assertThrows(ItemNotFoundException.class, () -> sut.decreaseByItemId(existingItemId, quantity));
 
             // then
             verify(inventoryJpaRepository).decreaseStock(existingItemId, quantity);
@@ -146,8 +138,8 @@ class InventoryServiceTest {
 
             // then
             assertNotNull(result);
-            assertEquals(existingItemId, result.getItemId());
-            assertEquals(stock - quantity, result.getStock());
+            assertEquals(existingItemId, result.itemId());
+            assertEquals(stock - quantity, result.stock());
         }
     }
 
@@ -168,9 +160,7 @@ class InventoryServiceTest {
             final Long newStock = -1L;
 
             // when & then
-            assertThrows(InvalidStockException.class, () -> {
-                sut.updateStock(existingItemId, newStock);
-            });
+            assertThrows(InvalidStockException.class, () -> sut.updateStock(existingItemId, newStock));
         }
 
         @DisplayName("itemId를 갖는 entity를 찾지 못하면 Exception을 throw한다")
@@ -181,9 +171,7 @@ class InventoryServiceTest {
             final String nonExistingItemId = "2";
 
             // when & then
-            assertThrows(ItemNotFoundException.class, () -> {
-                sut.updateStock(nonExistingItemId, nextStock);
-            });
+            assertThrows(ItemNotFoundException.class, () -> sut.updateStock(nonExistingItemId, nextStock));
         }
 
         @DisplayName("itemId를 갖는 entity를 찾으면, stock을 수정하고 inventory를 반환한다")
@@ -197,8 +185,8 @@ class InventoryServiceTest {
 
             // then
             assertNotNull(result);
-            assertEquals(existingItemId, result.getItemId());
-            assertEquals(nextStock, result.getStock());
+            assertEquals(existingItemId, result.itemId());
+            assertEquals(nextStock, result.stock());
         }
     }
 }

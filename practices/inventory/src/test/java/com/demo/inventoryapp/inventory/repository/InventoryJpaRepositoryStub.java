@@ -9,7 +9,7 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class InventoryJpaRepositoryStub implements InventoryJpaRepository {
-    private final List<InventoryEntity> inventoryEntities = new ArrayList<InventoryEntity>();
+    private final List<InventoryEntity> inventoryEntities = new ArrayList<>();
     private final AtomicLong idGenerator = new AtomicLong(1);
 
     public void addInventoryEntity(@NotNull String itemId, @NotNull Long stock) {
