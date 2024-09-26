@@ -52,4 +52,36 @@ public class InventoryJpaRepositoryTest {
             assertEquals(stock, entity.getStock());
         }
     }
+
+    @Nested
+    class DecreaseStock {
+
+        final String existingItemId = "1";
+        final String nonExistingItemId = "2";
+        final Long stock = 100L;
+
+        @DisplayName("itemId를 갖는 entity가 없다면, 0을 반환한다")
+        @Test
+        void test1() {
+            // given & when
+            final Integer result = sut.decreaseStock(nonExistingItemId, 10L);
+
+            // then
+            assertEquals(0, result);
+        }
+
+        @DisplayName("itemId를 갖는 entity가 있다면, stock을 차감하고 1을 반환한다")
+        @Test
+        void test2() {
+            // given & when
+            final Integer result = sut.decreaseStock(existingItemId, 10L);
+
+            // then
+            assertEquals(1, result);
+
+            final InventoryEntity entity = sut.findByItemId(existingItemId).get();
+            final Long expectedStock = stock - 10L;
+            assertEquals(expectedStock, entity.getStock());
+        }
+    }
 }
