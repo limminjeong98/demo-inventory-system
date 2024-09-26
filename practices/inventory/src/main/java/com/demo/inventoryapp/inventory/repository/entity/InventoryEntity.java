@@ -4,8 +4,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class InventoryEntity {
-    private @Nullable final Long id;
-    private @NotNull final String itemId;
+    private @Nullable
+    final Long id;
+    private @NotNull
+    final String itemId;
     private @NotNull Long stock;
 
 

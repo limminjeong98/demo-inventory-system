@@ -24,7 +24,7 @@ dependencies {
     testImplementation(Testing.mockito.junitJupiter)
 
     project.afterEvaluate {
-        if(project.pluginManager.hasPlugin("custom.spring-conventions")) {
+        if (project.pluginManager.hasPlugin("custom.spring-conventions")) {
             testImplementation(Spring.boot.test)
         }
     }
