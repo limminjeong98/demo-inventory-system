@@ -13,8 +13,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -97,14 +96,46 @@ public class InventoryIntegrationTest {
 
     @DisplayName("재고 수정 실패")
     @Test
-    void test5() {
-        throw new NotImplementedTestException();
+    void test5() throws Exception {
+        // 1. 재고를 조회하고 100개인 것을 확인한다
+        successGetStock(existingItemId, stock);
+
+        // 2. 재고를 -100개로 수정하고 실패한다
+        final Long newStock = -100L;
+        final String requestBody = "{\"stock\": " + newStock + "}";
+        mockMvc.perform(
+                        patch("/api/v1/inventory/{itemId}/stock", existingItemId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(requestBody)
+                )
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error.code").value(ErrorCodes.INVALID_STOCK.code))
+                .andExpect(jsonPath("$.error.local_message").value(ErrorCodes.INVALID_STOCK.message));
+
+        // 3. 재고를 조회하고 100개인 것을 확인한다
+        successGetStock(existingItemId, stock);
     }
 
     @DisplayName("재고 수정 성공")
     @Test
-    void test6() {
-        throw new NotImplementedTestException();
+    void test6() throws Exception {
+        // 1. 재고를 조회하고 100개인 것을 확인한다
+        successGetStock(existingItemId, stock);
+
+        // 2. 재고를 1000개로 수정하고 실패한다
+        final Long newStock = 1000L;
+        final String requestBody = "{\"stock\": " + newStock + "}";
+        mockMvc.perform(
+                        patch("/api/v1/inventory/{itemId}/stock", existingItemId)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(requestBody)
+                )
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.item_id").value(existingItemId))
+                .andExpect(jsonPath("$.data.stock").value(newStock));
+
+        // 3. 재고를 조회하고 1000개인 것을 확인한다
+        successGetStock(existingItemId, newStock);
     }
 
     @DisplayName("재고 차감, 수정 종합")
