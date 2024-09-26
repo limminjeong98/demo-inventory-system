@@ -1,8 +1,6 @@
 package com.demo.inventoryapp.inventory.repository.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -11,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 public class InventoryEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private @Nullable Long id;
     private @NotNull String itemId;
     private @NotNull Long stock;
