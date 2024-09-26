@@ -3,7 +3,13 @@ package com.demo.inventoryapp.inventory.repository.entity;
 import jakarta.persistence.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.ZonedDateTime;
+
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "inventory")
 @Entity
 public class InventoryEntity {
@@ -13,6 +19,12 @@ public class InventoryEntity {
     private @Nullable Long id;
     private @NotNull String itemId;
     private @NotNull Long stock;
+
+    @CreatedDate
+    private @Nullable ZonedDateTime createdAt;
+
+    @LastModifiedDate
+    private @Nullable ZonedDateTime updatedAt;
 
     public InventoryEntity() {
     }
@@ -37,5 +49,13 @@ public class InventoryEntity {
 
     public void setStock(@NotNull Long stock) {
         this.stock = stock;
+    }
+
+    public @Nullable ZonedDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public @Nullable ZonedDateTime getUpdatedAt() {
+        return updatedAt;
     }
 }

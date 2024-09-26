@@ -1,5 +1,6 @@
 package com.demo.inventoryapp.inventory.repository;
 
+import com.demo.inventoryapp.config.JpaConfig;
 import com.demo.inventoryapp.inventory.repository.entity.InventoryEntity;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -7,12 +8,16 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.time.ZonedDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Import(JpaConfig.class)
 @ActiveProfiles("h2-test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
@@ -20,6 +25,9 @@ public class InventoryJpaRepositoryTest {
 
     @Autowired
     InventoryJpaRepository sut;
+
+    @Autowired
+    TestEntityManager entityManager;
 
     @Nested
     class FindByItemId {
@@ -72,8 +80,12 @@ public class InventoryJpaRepositoryTest {
         @DisplayName("itemId를 갖는 entity가 있다면, stock을 차감하고 1을 반환한다")
         @Test
         void test2() {
-            // given & when
+            // given
+            final ZonedDateTime lastUpdatedAt = sut.findByItemId(existingItemId).get().getUpdatedAt();
+
+            // when
             final Integer result = sut.decreaseStock(existingItemId, 10L);
+            entityManager.clear();
 
             // then
             assertEquals(1, result);
@@ -81,6 +93,7 @@ public class InventoryJpaRepositoryTest {
             final InventoryEntity entity = sut.findByItemId(existingItemId).get();
             final Long expectedStock = stock - 10L;
             assertEquals(expectedStock, entity.getStock());
+            assertNotEquals(lastUpdatedAt, entity.getUpdatedAt());
         }
     }
 
@@ -104,6 +117,8 @@ public class InventoryJpaRepositoryTest {
             assertNotNull(result.getId());
             assertEquals(nonExistingItemId, result.getItemId());
             assertEquals(newStock, result.getStock());
+            assertNotNull(result.getCreatedAt());
+            assertNotNull(result.getUpdatedAt());
         }
 
         @DisplayName("id를 갖는 entity가 있다면, entity를 수정하고 수정된 entity를 반환한다")
@@ -112,15 +127,20 @@ public class InventoryJpaRepositoryTest {
             // given
             final Long newStock = 1234L;
             final InventoryEntity entity = sut.findByItemId(existingItemId).get();
+            final ZonedDateTime lastUpdatedAt = entity.getUpdatedAt();
 
             // when
             entity.setStock(newStock);
             final InventoryEntity result = sut.save(entity);
+            entityManager.flush();
 
             // then
             assertEquals(existingId, result.getId());
             assertEquals(existingItemId, result.getItemId());
             assertEquals(newStock, result.getStock());
+            assertNotNull(result.getCreatedAt());
+            assertNotNull(result.getUpdatedAt());
+            assertNotEquals(lastUpdatedAt, result.getUpdatedAt());
         }
     }
 }
