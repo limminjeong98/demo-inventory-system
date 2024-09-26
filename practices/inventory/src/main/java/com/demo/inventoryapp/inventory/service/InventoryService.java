@@ -10,6 +10,7 @@ import com.demo.inventoryapp.inventory.service.exception.ItemNotFoundException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class InventoryService {
@@ -26,6 +27,7 @@ public class InventoryService {
                 .orElse(null);
     }
 
+    @Transactional
     public @NotNull Inventory decreaseByItemId(@NotNull final String itemId, @NotNull final Long quantity) {
         // 차감할 재고의 수량은 0 이상
         if (quantity < 0) throw new InvalidDecreaseQuantityException();
