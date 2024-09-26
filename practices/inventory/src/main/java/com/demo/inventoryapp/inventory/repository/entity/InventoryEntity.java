@@ -1,15 +1,22 @@
 package com.demo.inventoryapp.inventory.repository.entity;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+@Table(name = "inventory")
+@Entity
 public class InventoryEntity {
-    private @Nullable
-    final Long id;
-    private @NotNull
-    final String itemId;
+
+    @Id
+    private @Nullable Long id;
+    private @NotNull String itemId;
     private @NotNull Long stock;
 
+    public InventoryEntity() {
+    }
 
     public InventoryEntity(@Nullable Long id, @NotNull String itemId, @NotNull Long stock) {
         this.id = id;
