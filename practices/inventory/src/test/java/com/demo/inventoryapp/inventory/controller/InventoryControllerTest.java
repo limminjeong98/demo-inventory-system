@@ -6,10 +6,6 @@ import com.demo.inventoryapp.inventory.controller.consts.ErrorCodes;
 import com.demo.inventoryapp.inventory.service.InventoryService;
 import com.demo.inventoryapp.inventory.service.domain.Inventory;
 import com.demo.inventoryapp.test.fixture.InventoryFixture;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -20,7 +16,9 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static com.demo.inventoryapp.test.assertion.Assertions.assertMvcDataEquals;
+import static com.demo.inventoryapp.test.assertion.Assertions.assertMvcErrorEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -30,9 +28,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(controllers = {InventoryController.class, GlobalExceptionHandler.class})
 public class InventoryControllerTest {
 
-    private final ObjectMapper objectMapper = new ObjectMapper()
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            .setPropertyNamingStrategy(PropertyNamingStrategies.SNAKE_CASE);
     @MockBean
     InventoryService inventoryService;
     @Autowired
@@ -56,14 +51,7 @@ public class InventoryControllerTest {
                     .andReturn();
 
             // then
-            final String content = result.getResponse().getContentAsString();
-            final JsonNode responseBody = objectMapper.readTree(content);
-            final JsonNode errorField = responseBody.get("error");
-
-            assertNotNull(errorField);
-            assertTrue(errorField.isObject());
-            assertEquals(ErrorCodes.ITEM_NOT_FOUND.code, errorField.get("code").asLong());
-            assertEquals(ErrorCodes.ITEM_NOT_FOUND.message, errorField.get("local_message").asText());
+            assertMvcErrorEquals(result, ErrorCodes.ITEM_NOT_FOUND);
             verify(inventoryService).findByItemId(itemId);
         }
 
@@ -81,14 +69,11 @@ public class InventoryControllerTest {
                     .andReturn();
 
             // then
-            final String content = result.getResponse().getContentAsString();
-            final JsonNode responseBody = objectMapper.readTree(content);
-            final JsonNode dataField = responseBody.get("data");
+            assertMvcDataEquals(result, dataField -> {
+                assertEquals(inventory.itemId(), dataField.get("item_id").asText());
+                assertEquals(inventory.stock(), dataField.get("stock").asLong());
+            });
 
-            assertNotNull(dataField);
-            assertTrue(dataField.isObject());
-            assertEquals(inventory.itemId(), dataField.get("item_id").asText());
-            assertEquals(inventory.stock(), dataField.get("stock").asLong());
             verify(inventoryService).findByItemId(itemId);
         }
     }
