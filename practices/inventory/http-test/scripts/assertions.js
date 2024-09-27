@@ -14,7 +14,7 @@ export function assertE2eErrorEquals(
     })
 }
 
-export function assertE2eDataEquals(expectedItemId) {
+export function assertE2eDataEquals(expectedItemId, expectedStock) {
     client.test("응답의 status는 200이다", function () {
         client.assert(response.status === 200, '응답의 status는 200이 아니다')
     })
@@ -23,5 +23,9 @@ export function assertE2eDataEquals(expectedItemId) {
         client.assert(data !== null)
         client.assert(data.item_id === expectedItemId)
         client.assert(data.stock !== null && data.stock >= 0)
+
+        if (expectedStock) {
+            client.assert(data.stock === expectedStock)
+        }
     })
 }
