@@ -33,7 +33,8 @@ Content-Type: application/json
     "quantity": {{quantity}}
 }
 > {%
-    import { assertE2eErrorEquals } from './scripts/assertions'
+    import {assertE2eErrorEquals} from './scripts/assertions'
+
     assertE2eErrorEquals(400, 1001, '재고가 부족합니다')
 %}
 
@@ -58,9 +59,38 @@ Content-Type: application/json
 }
 
 > {%
-    import { assertE2eDataEquals } from './scripts/assertions'
+    import {assertE2eDataEquals} from './scripts/assertions'
+
     const quantity = parseInt(request.variables.get('quantity'))
     const existingItemId = request.environment.get('existingItemId')
     const oldStock = parseInt(client.global.get('oldStock'))
     assertE2eDataEquals(existingItemId, oldStock - quantity)
 %}
+
+### 재고 수정 실패
+@invalidStock = -1
+
+PATCH {{host}}/api/v1/inventory/{{existingItemId}}/stock
+Content-Type: application/json
+
+{
+  "stock": {{invalidStock}}
+}
+
+> {%
+    import {assertE2eErrorEquals} from './scripts/assertions'
+
+    assertE2eErrorEquals(400, 1003, '재고가 유효하지 않습니다')
+%}
+
+### 재고 수정 성공
+< scripts/preUpdateStock.js
+
+PATCH {{host}}/api/v1/inventory/{{existingItemId}}/stock
+Content-Type: application/json
+
+{
+  "stock": {{newStock}}
+}
+
+> scripts/testUpdateStock.js
