@@ -75,8 +75,8 @@ public class InventoryControllerTest {
 
             // then
             assertMvcDataEquals(result, dataField -> {
-                assertEquals(inventory.itemId(), dataField.get("item_id").asText());
-                assertEquals(inventory.stock(), dataField.get("stock").asLong());
+                assertEquals(inventory.getItemId(), dataField.get("item_id").asText());
+                assertEquals(inventory.getStock(), dataField.get("stock").asLong());
             });
 
             verify(inventoryService).findByItemId(itemId);
@@ -171,8 +171,8 @@ public class InventoryControllerTest {
 
             // then
             assertMvcDataEquals(result, dataField -> {
-                assertEquals(inventory.itemId(), dataField.get("item_id").asText());
-                assertEquals(inventory.stock(), dataField.get("stock").asLong());
+                assertEquals(inventory.getItemId(), dataField.get("item_id").asText());
+                assertEquals(inventory.getStock(), dataField.get("stock").asLong());
             });
             verify(inventoryService).decreaseByItemId(itemId, quantity);
         }
@@ -245,8 +245,8 @@ public class InventoryControllerTest {
 
             // then
             assertMvcDataEquals(result, dataField -> {
-                assertEquals(inventory.itemId(), dataField.get("item_id").asText());
-                assertEquals(inventory.stock(), dataField.get("stock").asLong());
+                assertEquals(inventory.getItemId(), dataField.get("item_id").asText());
+                assertEquals(inventory.getStock(), dataField.get("stock").asLong());
             });
             verify(inventoryService).updateStock(itemId, stock);
         }

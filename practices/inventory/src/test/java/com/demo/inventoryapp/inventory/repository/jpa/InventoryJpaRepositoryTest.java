@@ -1,8 +1,7 @@
-package com.demo.inventoryapp.inventory.repository;
+package com.demo.inventoryapp.inventory.repository.jpa;
 
 import com.demo.inventoryapp.config.JpaConfig;
 import com.demo.inventoryapp.inventory.repository.entity.InventoryEntity;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -18,12 +17,11 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@Disabled("로컬 환경에서만 실행")
 @Import(JpaConfig.class)
-@ActiveProfiles("mysql-test")
+@ActiveProfiles("h2-test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
-public class InventoryJpaRepositoryMysqlTest {
+public class InventoryJpaRepositoryTest {
 
     @Autowired
     InventoryJpaRepository sut;

@@ -1,4 +1,4 @@
-package com.demo.inventoryapp.inventory.repository;
+package com.demo.inventoryapp.inventory.repository.jpa;
 
 import com.demo.inventoryapp.inventory.repository.entity.InventoryEntity;
 import org.jetbrains.annotations.NotNull;
@@ -156,8 +156,10 @@ public class InventoryJpaRepositoryStub implements InventoryJpaRepository {
     }
 
     @Override
-    public Optional<InventoryEntity> findById(Long aLong) {
-        return Optional.empty();
+    public @NotNull Optional<InventoryEntity> findById(Long aLong) {
+        return inventoryEntities.stream()
+                .filter(entity -> entity.getId() != null && entity.getId().equals(aLong))
+                .findFirst();
     }
 
     @Override

@@ -1,12 +1,11 @@
 package com.demo.inventoryapp.inventory.service;
 
-import com.demo.inventoryapp.inventory.repository.InventoryJpaRepository;
-import com.demo.inventoryapp.inventory.repository.entity.InventoryEntity;
 import com.demo.inventoryapp.inventory.service.domain.Inventory;
 import com.demo.inventoryapp.inventory.service.exception.InsufficientStockException;
 import com.demo.inventoryapp.inventory.service.exception.InvalidDecreaseQuantityException;
 import com.demo.inventoryapp.inventory.service.exception.InvalidStockException;
 import com.demo.inventoryapp.inventory.service.exception.ItemNotFoundException;
+import com.demo.inventoryapp.inventory.service.persistence.InventoryPersistenceAdapter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Service;
@@ -15,16 +14,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class InventoryService {
 
-    private final InventoryJpaRepository inventoryJpaRepository;
+    private final InventoryPersistenceAdapter inventoryAdapter;
 
-    public InventoryService(InventoryJpaRepository inventoryJpaRepository) {
-        this.inventoryJpaRepository = inventoryJpaRepository;
+    public InventoryService(InventoryPersistenceAdapter inventoryAdapter) {
+        this.inventoryAdapter = inventoryAdapter;
     }
 
     public @Nullable Inventory findByItemId(@NotNull final String itemId) {
-        return inventoryJpaRepository.findByItemId(itemId)
-                .map(this::mapToDomain)
-                .orElse(null);
+        return inventoryAdapter.findByItemId(itemId);
     }
 
     @Transactional
@@ -33,17 +30,19 @@ public class InventoryService {
         if (quantity < 0) throw new InvalidDecreaseQuantityException();
 
         // itemId에 해당하는 엔티티 없음
-        final InventoryEntity inventoryEntity = inventoryJpaRepository.findByItemId(itemId).orElseThrow(ItemNotFoundException::new);
+        final Inventory inventory = inventoryAdapter.findByItemId(itemId);
+        if (inventory == null) {
+            throw new ItemNotFoundException();
+        }
 
         // 재고 부족
-        if (inventoryEntity.getStock() < quantity) throw new InsufficientStockException();
+        if (inventory.getStock() < quantity) throw new InsufficientStockException();
 
         // 차감하려는 시점에 재고가 사라지는 등의 이슈로 차감에 실패한다면
-        final Integer updateCount = inventoryJpaRepository.decreaseStock(itemId, quantity);
-        if (updateCount == 0) throw new ItemNotFoundException();
+        final Inventory updatedInventory = inventoryAdapter.decreaseStock(itemId, quantity);
+        if (updatedInventory == null) throw new ItemNotFoundException();
 
-        final InventoryEntity updatedEntity = inventoryJpaRepository.findByItemId(itemId).orElseThrow(ItemNotFoundException::new);
-        return mapToDomain(updatedEntity);
+        return updatedInventory;
     }
 
 
@@ -52,14 +51,12 @@ public class InventoryService {
         if (newStock < 0) throw new InvalidStockException();
 
         // itemId에 해당하는 엔티티 없음
-        final InventoryEntity inventoryEntity = inventoryJpaRepository.findByItemId(itemId).orElseThrow(ItemNotFoundException::new);
+        final Inventory inventory = inventoryAdapter.findByItemId(itemId);
+        if (inventory == null) {
+            throw new ItemNotFoundException();
+        }
 
-        inventoryEntity.setStock(newStock);
-        return mapToDomain(inventoryJpaRepository.save(inventoryEntity));
-    }
-
-
-    private Inventory mapToDomain(InventoryEntity entity) {
-        return new Inventory(entity.getItemId(), entity.getStock());
+        inventory.setStock(newStock);
+        return inventoryAdapter.save(inventory);
     }
 }

@@ -8,6 +8,6 @@ public record InventoryResponse(
         @NotNull Long stock
 ) {
     public static InventoryResponse fromDomain(@NotNull final Inventory inventory) {
-        return new InventoryResponse(inventory.itemId(), inventory.stock());
+        return new InventoryResponse(inventory.getItemId(), inventory.getStock());
     }
 }
