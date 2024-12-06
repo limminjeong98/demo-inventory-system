@@ -1,4 +1,4 @@
-package com.demo.inventoryapp.inventory.repository.entity;
+package com.demo.inventoryapp.inventory.repository.jpa.entity;
 
 import jakarta.persistence.*;
 import org.jetbrains.annotations.NotNull;
